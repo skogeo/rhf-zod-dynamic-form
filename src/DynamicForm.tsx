@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,15 +21,14 @@ const createDynamicSchema = (obj: any): z.ZodTypeAny => {
 interface DynamicFormProps {
     initialData: any;
     onSubmit: (data: any) => void;
+    schema: z.ZodTypeAny;
   }
   
-  const DynamicForm: React.FC<DynamicFormProps> = ({ initialData, onSubmit }) => {
-    const [schema] = useState(() => createDynamicSchema(initialData));
-  
-    const { control, handleSubmit, formState: { errors } } = useForm({
-      resolver: zodResolver(schema),
-      defaultValues: initialData,
-    });
+  const DynamicForm: React.FC<DynamicFormProps> = ({ initialData, onSubmit, schema }) => {
+    const { handleSubmit, control, formState: { errors } } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: initialData,
+      });
   
     const renderField = (fieldName: string, fieldValue: any, path = '') => {
       const fullPath = path ? `${path}.${fieldName}` : fieldName;
