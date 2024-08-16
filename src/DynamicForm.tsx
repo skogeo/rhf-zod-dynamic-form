@@ -24,7 +24,7 @@ interface DynamicFormProps {
   }
   
   const DynamicForm: React.FC<DynamicFormProps> = ({ initialData, onSubmit }) => {
-    const [schema, setSchema] = useState(() => createDynamicSchema(initialData));
+    const [schema] = useState(() => createDynamicSchema(initialData));
   
     const { control, handleSubmit, formState: { errors } } = useForm({
       resolver: zodResolver(schema),
