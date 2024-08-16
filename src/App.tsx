@@ -61,8 +61,26 @@ const App = () => {
       };
 
       const emptyData = generateEmptyData(parsedSchema);
-      setInitialData(emptyData);
-      setInitialDataInput(JSON.stringify(emptyData, null, 2));
+
+      // Merge previous data with new empty fields
+      const mergeData = (prevData: any, newData: any) => {
+        if (typeof prevData !== 'object' || prevData === null) {
+          return newData;
+        }
+        const mergedData: any = { ...newData };
+        for (const key in prevData) {
+          if (key in newData) {
+            mergedData[key] = mergeData(prevData[key], newData[key]);
+          } else {
+            mergedData[key] = prevData[key];
+          }
+        }
+        return mergedData;
+      };
+
+      const mergedData = mergeData(initialData, emptyData);
+      setInitialData(mergedData);
+      setInitialDataInput(JSON.stringify(mergedData, null, 2));
     } catch (error) {
       console.error('Invalid schema:', error);
       setFormSchema(null);
@@ -90,15 +108,15 @@ const App = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-wrap -mx-2">
-        <div className="w-full md:w-1/2 px-2 mb-4">
+    <div className="container mx-auto p-4 h-screen">
+      <div className="flex flex-wrap -mx-2 h-full">
+        <div className="w-full md:w-1/2 px-2 mb-4 flex flex-col">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="schemaInput">
             Zod Schema
           </label>
           <textarea
             id="schemaInput"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-grow"
             rows={10}
             value={schemaInput}
             onChange={(e) => setSchemaInput(e.target.value)}
@@ -108,7 +126,7 @@ const App = () => {
           </label>
           <textarea
             id="initialDataInput"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-grow"
             rows={10}
             value={initialDataInput}
             onChange={(e) => setInitialDataInput(e.target.value)}
