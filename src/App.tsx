@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { z, ZodSchema } from 'zod';
 import DynamicForm from './DynamicForm';
 
@@ -41,50 +41,9 @@ const App = () => {
     try {
       const parsedSchema = new Function('z', `return z.object(${schemaInput})`)(z);
       setFormSchema(parsedSchema);
-
-      // Generate initial data with empty strings
-      const generateEmptyData = (schema: any) => {
-        if (schema._def.typeName === 'ZodObject') {
-          const shape = schema._def.shape();
-          const emptyData: any = {};
-          for (const key in shape) {
-            emptyData[key] = generateEmptyData(shape[key]);
-          }
-          return emptyData;
-        } else if (schema._def.typeName === 'ZodArray') {
-          return [];
-        } else if (schema._def.typeName === 'ZodOptional' || schema._def.typeName === 'ZodNullable') {
-          return generateEmptyData(schema._def.innerType);
-        } else {
-          return '';
-        }
-      };
-
-      const emptyData = generateEmptyData(parsedSchema);
-
-      // Merge previous data with new empty fields
-      const mergeData = (prevData: any, newData: any) => {
-        if (typeof prevData !== 'object' || prevData === null) {
-          return newData;
-        }
-        const mergedData: any = { ...newData };
-        for (const key in prevData) {
-          if (key in newData) {
-            mergedData[key] = mergeData(prevData[key], newData[key]);
-          } else {
-            mergedData[key] = prevData[key];
-          }
-        }
-        return mergedData;
-      };
-
-      const mergedData = mergeData(initialData, emptyData);
-      setInitialData(mergedData);
-      setInitialDataInput(JSON.stringify(mergedData, null, 2));
     } catch (error) {
       console.error('Invalid schema:', error);
       setFormSchema(null);
-      setInitialData(null);
     }
   }, [schemaInput]);
 
@@ -122,7 +81,10 @@ const App = () => {
             onChange={(e) => setSchemaInput(e.target.value)}
           />
           <label className="block text-gray-700 text-sm font-bold mb-2 mt-4" htmlFor="initialDataInput">
-            Initial Data
+            Initial Data&nbsp;
+            <span className="text-red-500 text-xs italic mt-2">
+              Note: Update the initial values to reflect changes in the schema.
+            </span>
           </label>
           <textarea
             id="initialDataInput"
